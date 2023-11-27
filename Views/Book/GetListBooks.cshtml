@@ -1,0 +1,101 @@
+﻿@model IEnumerable<ShopCart_CodeFirst.Models.Book>
+@using ShopCart_CodeFirst.Models;
+
+@{
+    ViewBag.Title = "GetListBooks";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>GetListBooks</h2>
+
+<p>
+    @Html.ActionLink("Create New", "CreateBook")
+</p>
+<p class="pull-right">
+    <button class="btn btn-warning" type="button" onclick="window.open('/Book/ShoppingCart','_self')">
+        Your Orders <span class="badge" id="Cart_Amount">@ViewBag.count</span>
+    </button>
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Title)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.AuthorName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Price)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Year)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CoverPage)
+        </th>
+        <th>
+            Add Cart
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AuthorName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Price)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Year)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CoverPage)
+            </td>
+            <td>
+                <img src="~/Content/Image/@item.CoverPage" width="70" alt="@item.CoverPage" />
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.BookId }) |
+                @Html.ActionLink("Details", "Details", new { id = item.BookId }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.BookId })
+            </td>
+
+            <td>
+                <input type="button" class="btn btn-danger" onclick="AddToCart('@item.BookId')" value="Add To Cart" />
+            </td>
+        </tr>
+    }
+
+</table>
+
+@{
+    if (Session["ShoppingCart"] != null)
+    {
+        int cartcount = 0;
+        List<CartItem> ls = (List<CartItem>)Session["ShoppingCart"];
+        foreach (CartItem item in ls)
+        {
+            cartcount += item.Quality;
+        }
+        ViewBag.count = cartcount;
+    }
+}
+
+<script>
+    function AddToCart(BookId) {
+        $.ajax({
+            type: "POST",
+            url: '/Book/AddToCart',
+            data: { id: BookId },
+
+            success: function (data) {
+                $("#Cart_Amount").html(data.ItemAmount);
+            }
+        });
+    }
+</script>
